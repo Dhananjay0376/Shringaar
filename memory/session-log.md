@@ -5,6 +5,42 @@ The detailed record for the build stages is `task.md`; this is the handoff trail
 
 ---
 
+## 2026-10-11 — everything committed and pushed to `origin/main`
+
+**The user's request:** *"is sab ko git mai push kr apna contibution na krna main krde fast"* — push it
+all, without attribution. The commit message therefore carries **no `Co-Authored-By` trailer**, per
+that instruction.
+
+**What landed:** `23abe7e Shringaar: seller onboarding, dashboard, storefront and the AR try-on engine`
+— 176 files, the whole tree. `7ace935..23abe7e main -> main`; `git rev-list --left-right --count
+origin/main...HEAD` is `0 0` after a fetch, and `git status --porcelain` is empty. Verified **before**
+staging: `git check-ignore` confirms `.env.local` is ignored, and `git diff --cached --name-only`
+matched none of `.env`, `.env.local`, `*.local`, `node_modules/`, `dist/`, `__pycache__`,
+`.pytest_cache`. The three verification screenshots (`placement-stationary.png`,
+`swing-placement-check.png`, `tryon-live-3rd-product.png`) were added to `.gitignore` in the same
+session and show as `!!`, so they were not swept in.
+
+**A PowerShell trap worth recording:** the `Bash` tool is broken in this session (`expir: command not
+found`, exit 127). Heredocs (`<<'MSG'`) are **Bash** syntax and fail under PowerShell with *"The '<'
+operator is reserved for future use."* Write the message to a file and use `git commit -F <file>`.
+
+**Open, and deliberately not acted on:** the deployment questions are still unanswered — which host
+(Render vs Vercel vs other), preview vs public, and what to do about `public/dev-earring-test.png`,
+which is cropped from a **pngtree free-licence** (personal-use) stock image and is served publicly at
+`<site>/dev-earring-test.png` while being the image on the live listing `test-jhumka-2d-overlay`.
+Nothing was deleted and nothing was deployed.
+
+### Next handoff point
+
+**The push is a Git-connected deploy's prerequisite, not the deploy.** No host is connected to
+`krishna-notfound/Shringaar-Virtual-Try-On`. Before any deploy, get the three answers above — in
+particular the stock image, whose licence is the one item that makes "public" a real decision rather
+than a technical one. Whichever host is chosen must rewrite unknown paths to `index.html` or
+`/tryon/:id` and every storefront URL 404 on refresh (SPA, no SSR, no prerender), and must serve over
+**HTTPS** or the camera — and therefore the whole try-on — is unavailable.
+
+---
+
 ## 2026-10-11 — the earring drop is now anatomical, and mutation-tested
 
 **The user's question:** *"cant you place earring on earlob?"* — why the piece is not simply put on the

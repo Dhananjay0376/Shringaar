@@ -135,8 +135,15 @@ a plain `http://` LAN address does not.
 rewrite unknown paths to `index.html` — otherwise `/tryon/:id` and every storefront URL 404 on
 refresh. There is **no SSR and no prerender**.
 
-**Branches:** local `main`; the remote PR base is **`dash`** (`origin/HEAD → origin/dash`). Git history
-is one commit (`7ace935 intial main commit`); essentially all current work is uncommitted or untracked.
+**Branches:** local `main` tracks `origin/main`; the remote PR base is **`dash`** (`origin/HEAD →
+origin/dash`), so `main` is not the default branch. History is two commits: `7ace935 intial main
+commit`, then `23abe7e` (2026-10-11), which carries all of the work above. `main` and `origin/main`
+are in sync; the working tree is clean.
+
+Remote: `https://github.com/krishna-notfound/Shringaar-Virtual-Try-On.git`.
+
+**Committing here is not the same as deploying.** `23abe7e` is a Git-connected deploy's *prerequisite*
+and nothing more — no host is connected to the repository, and there is still no deployment.
 
 ---
 
