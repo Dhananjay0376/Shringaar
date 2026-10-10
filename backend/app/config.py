@@ -63,7 +63,7 @@ def load_settings() -> Settings:
         o.strip()
         for o in os.environ.get(
             "ASSET_CORS_ORIGINS",
-            "http://localhost:5173,http://localhost:5199,http://127.0.0.1:5173,http://127.0.0.1:5199",
+            "*,http://localhost:5173,http://localhost:5199,http://127.0.0.1:5173,http://127.0.0.1:5199,https://shringaar-virtual-try-on.onrender.com",
         ).split(",")
         if o.strip()
     )
@@ -82,7 +82,11 @@ def load_settings() -> Settings:
         # and it was previously unreachable through the running service.
         mock_item_count=max(1, min(3, _int("ASSET_MOCK_ITEM_COUNT", 1))),
         cors_origins=origins,
-        public_base_url=os.environ.get("ASSET_PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/"),
+        public_base_url=(
+            os.environ.get("ASSET_PUBLIC_BASE_URL")
+            or os.environ.get("RENDER_EXTERNAL_URL")
+            or "https://shringaar-virtual-try-on.onrender.com"
+        ).rstrip("/"),
     )
 
 
