@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "start": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -22,14 +23,14 @@
     "react-router-dom": "^6.28.0",
     "three": "^0.186.1",
     "typescript": "^5.6.3",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "vitest": "^3.2.4"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@types/three": "^0.186.0",
-    "vitest": "^3.2.4"
+    "@types/three": "^0.186.0"
   }
 }
