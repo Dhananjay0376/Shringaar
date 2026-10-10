@@ -1,0 +1,108 @@
+/* ============================================================================
+   Shringaar — design tokens
+   Single source of truth for colour, type, space, radius, elevation, motion.
+   Pages must never hardcode a hex value or a raw px font size.
+   See design.md §3–§5 for the rationale behind each choice.
+   ========================================================================= */
+
+:root {
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+  --canvas: #f9f5ee;
+  --surface: #ffffff;
+  --surface-sunken: #f4eee4;
+  --surface-hover: #faf7f1;
+
+  /* ── Lines ────────────────────────────────────────────────────────────── */
+  --line: #e6dccb;
+  --line-strong: #d6c8b1;
+
+  /* ── Ink ──────────────────────────────────────────────────────────────── */
+  --ink: #1e1a15;
+  --ink-2: #4a423a;
+  --ink-3: #7a6e62;
+  --ink-inverse: #ffffff;
+
+  /* ── Brand gold (accent only — D3) ────────────────────────────────────── */
+  --gold-50: #faf3e6;
+  --gold-100: #f1e3c8;
+  --gold-200: #e3cfa4;
+  --gold-400: #c9a55f;
+  --gold-500: #b08d57;
+  --gold-600: #8e6f3d;
+
+  /* ── Status ───────────────────────────────────────────────────────────── */
+  --green-50: #eaf4ee;
+  --green-700: #2f7d5d;
+  --amber-50: #fbf1dc;
+  --amber-700: #9a6b12;
+  --red-50: #faecea;
+  --red-700: #a83a32;
+  --slate-50: #eff1f4;
+  --slate-700: #5b6470;
+
+  /* ── Focus ────────────────────────────────────────────────────────────── */
+  --focus-ring: 2px solid var(--gold-400);
+  --focus-offset: 2px;
+
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+
+  --fs-display: 1.75rem; /* 28px page title */
+  --fs-display-sm: 1.5rem; /* 24px page title, mobile */
+  --fs-stat: 1.875rem; /* 30px stat value */
+  --fs-h2: 1.0625rem; /* 17px section title */
+  --fs-h3: 0.9375rem; /* 15px card title */
+  --fs-body: 0.875rem; /* 14px */
+  --fs-sm: 0.8125rem; /* 13px */
+  --fs-xs: 0.75rem; /* 12px */
+
+  --lh-tight: 1.2;
+  --lh-body: 1.55;
+
+  /* ── Space (4px base, 8px rhythm — D9) ────────────────────────────────── */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+
+  /* ── Radius (D8) ──────────────────────────────────────────────────────── */
+  --r-sm: 6px;
+  --r-control: 8px;
+  --r-card: 12px;
+  --r-pill: 999px;
+
+  /* ── Elevation (near-flat — D5) ───────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px rgba(30, 26, 21, 0.05);
+  --shadow-sm: 0 2px 8px rgba(30, 26, 21, 0.06);
+  --shadow-md: 0 8px 24px rgba(30, 26, 21, 0.1);
+  --shadow-lg: 0 16px 48px rgba(30, 26, 21, 0.16);
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  --sidebar-w: 248px;
+  --content-max: 1120px;
+  --header-h: 64px;
+
+  /* ── Motion (D10) ─────────────────────────────────────────────────────── */
+  --t-fast: 120ms ease;
+  --t-base: 160ms ease;
+  --t-slow: 180ms ease;
+
+  --z-drawer: 60;
+  --z-modal: 80;
+  --z-toast: 100;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms;
+    --t-base: 0ms;
+    --t-slow: 0ms;
+  }
+}
