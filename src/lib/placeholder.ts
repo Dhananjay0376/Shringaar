@@ -10,13 +10,17 @@
  * storefront component use it. It depends on nothing but a label.
  */
 
+/* Six grounds. Each is a warm neutral so it reads as "placeholder", never as a photograph of real
+   stock. The stops were deepened a step: at tile size the ground sat only ~12% off the white card
+   behind it, which is close enough that the tile boundary does most of the work of saying "there is
+   an image here". It now sits ~23% off, and the accent has more contrast to draw with. */
 const PALETTES: ReadonlyArray<readonly [string, string, string]> = [
-  ['#F7F1E6', '#EBDFC7', '#C9A55F'],
-  ['#F4EFE9', '#E4D8C6', '#B08D57'],
-  ['#F8F2EC', '#EDDCC9', '#C08C5A'],
-  ['#F3F1EA', '#E2DECB', '#A89158'],
-  ['#F7EFEC', '#EBD9D2', '#C08A7E'],
-  ['#F1F0EC', '#DFE2DA', '#8E9B84'],
+  ['#EFE7D8', '#DCCBA6', '#B08B45'],
+  ['#EDE6DC', '#D9C6AC', '#A67F44'],
+  ['#F0E6DA', '#E0C4A4', '#B07544'],
+  ['#EAE7DA', '#CFC7AA', '#8E7B3C'],
+  ['#F0E3DE', '#DCC0B4', '#B0756A'],
+  ['#E6E8E0', '#C7CDBB', '#6F7F63'],
 ]
 
 /** Motif index → a simple ring, arc or drop, drawn as a faint outline. */
@@ -60,6 +64,11 @@ function toDataUrl(svg: string): string {
 export function placeholderImageDataUrl(label: string, seed = 0): string {
   const [from, to, accent] = PALETTES[Math.abs(seed) % PALETTES.length] ?? PALETTES[0]!
   const gradientId = `g${Math.abs(seed) % 997}`
+  /* The motif is picked from the seed divided by the palette count, not from the seed itself.
+     Taking both from the same number correlated them: with six palettes and three motifs, seeds 0
+     and 6 produced identical artwork, which a twelve-piece catalogue hits immediately. Dividing
+     gives all eighteen combinations. */
+  const motifIndex = Math.floor(Math.abs(seed) / PALETTES.length)
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="${escapeXml(label)} placeholder">
   <defs>
@@ -69,7 +78,7 @@ export function placeholderImageDataUrl(label: string, seed = 0): string {
     </linearGradient>
   </defs>
   <rect width="800" height="800" fill="url(#${gradientId})"/>
-  <g color="${accent}">${motif(Math.abs(seed))}</g>
+  <g color="${accent}">${motif(motifIndex)}</g>
   <text x="400" y="700" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
         font-size="46" font-weight="600" fill="${accent}" opacity="0.66"
         letter-spacing="4">${escapeXml(initialsOf(label))}</text>

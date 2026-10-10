@@ -3,51 +3,102 @@
    Single source of truth for colour, type, space, radius, elevation, motion.
    Pages must never hardcode a hex value or a raw px font size.
    See design.md §3–§5 for the rationale behind each choice.
+
+   THEME PROVENANCE — read before changing a value here.
+   The palette, typeface and radii below are taken from the reference landing page
+   the client supplied (a "fintech landing" template). Its design system, read off
+   the rendered page rather than eyeballed, is:
+
+     frame   #2F4436   the dark green border the whole page sits inside
+     paper   #E5E4DA   the cream panel itself
+     ink     #141A16   near-black with a green cast — never pure #000
+     cream   #ECEBE1   the light ink used on dark bands
+     night   #121D17   the dark bands (features, footer)
+     brand   #2F5640   the one green; buttons and marks
+     muted   #7F857B   secondary text
+
+   Type is Inter Tight alone, at weight 400 for display, with aggressive negative
+   tracking (-0.055em at 92px). Radii are small (3–6px), not the 12px+ of the
+   previous theme. Shadows are soft and deep, used for floating layers only.
+
+   The `--brand-*` ramp replaces a gold ramp of the same shape. The *names* are the
+   contract; the values are the theme. If the brand turns gold again, change the
+   values here and nothing else has to move.
    ========================================================================= */
 
 :root {
   /* ── Surfaces ─────────────────────────────────────────────────────────── */
-  --canvas: #f9f5ee;
+  /* The dark frame the app sits inside. Used by the marketing shell, which
+     insets the cream panel — the reference's most recognisable move. */
+  --frame: #2f4436;
+  /* The cream panel. This is the app's page background everywhere. */
+  --canvas: #e5e4da;
   --surface: #ffffff;
-  --surface-sunken: #f4eee4;
-  --surface-hover: #faf7f1;
+  --surface-raised: #fbfaf7;
+  --surface-sunken: #f2efea;
+  --surface-hover: #ebe8e3;
+
+  /* ── Dark bands (features, footer, nav dropdown) ──────────────────────── */
+  --night: #121d17;
+  --night-soft: #1c1412;
+  --cream: #ecebe1;
 
   /* ── Lines ────────────────────────────────────────────────────────────── */
-  --line: #e6dccb;
-  --line-strong: #d6c8b1;
+  /* The reference expresses these as `color-mix(ink 12%, transparent)`. Alpha
+     rather than a solid hex, so a line over a dark band stays honest. */
+  --line: rgba(20, 26, 22, 0.12);
+  --line-strong: rgba(20, 26, 22, 0.2);
+  --line-on-dark: rgba(236, 235, 225, 0.12);
+  --line-on-dark-strong: rgba(236, 235, 225, 0.24);
 
   /* ── Ink ──────────────────────────────────────────────────────────────── */
-  --ink: #1e1a15;
-  --ink-2: #4a423a;
-  --ink-3: #7a6e62;
-  --ink-inverse: #ffffff;
+  --ink: #141a16;
+  --ink-2: #3a423c;
+  --ink-3: #7f857b;
+  --ink-inverse: #ecebe1;
+  --ink-inverse-muted: rgba(236, 235, 225, 0.62);
 
-  /* ── Brand gold (accent only — D3) ────────────────────────────────────── */
-  --gold-50: #faf3e6;
-  --gold-100: #f1e3c8;
-  --gold-200: #e3cfa4;
-  --gold-400: #c9a55f;
-  --gold-500: #b08d57;
-  --gold-600: #8e6f3d;
+  /* ── Brand (the one green — accent only, design.md D3) ────────────────── */
+  --brand-50: #eaf0eb;
+  --brand-100: #d6e2d9;
+  --brand-200: #afc7b6;
+  --brand-300: #7ba189;
+  --brand-400: #4a7a5c;
+  --brand-500: #2f5640;
+  --brand-600: #24432f;
+  /* The positive/live green — the reference's `#3D8C56` dot and +% figures. */
+  --brand-accent: #3d8c56;
 
   /* ── Status ───────────────────────────────────────────────────────────── */
   --green-50: #eaf4ee;
   --green-700: #2f7d5d;
   --amber-50: #fbf1dc;
-  --amber-700: #9a6b12;
+  --amber-700: #8a5f10;
   --red-50: #faecea;
-  --red-700: #a83a32;
-  --slate-50: #eff1f4;
-  --slate-700: #5b6470;
+  --red-700: #b03a2e;
+  --slate-50: #f2efea;
+  --slate-700: #6e655e;
 
   /* ── Focus ────────────────────────────────────────────────────────────── */
-  --focus-ring: 2px solid var(--gold-400);
+  --focus-ring: 2px solid var(--brand-400);
   --focus-offset: 2px;
 
   /* ── Typography ───────────────────────────────────────────────────────── */
-  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
+  /* One family. The reference has no second face — hierarchy comes from size,
+     weight and tracking, not from a serif/sans pairing. */
+  --font-display: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-sans: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Tracking. Display type is set tight — this is the single strongest signal of
+     the reference's voice, and the easiest thing to lose. */
+  --track-display: -0.045em;
+  --track-h2: -0.035em;
+  --track-body: normal;
+  --track-label: -0.01em;
+  --track-micro: 0.02em;
 
   --fs-display: 1.75rem; /* 28px page title */
   --fs-display-sm: 1.5rem; /* 24px page title, mobile */
@@ -57,9 +108,15 @@
   --fs-body: 0.875rem; /* 14px */
   --fs-sm: 0.8125rem; /* 13px */
   --fs-xs: 0.75rem; /* 12px */
+  --fs-micro: 0.6875rem; /* 11px — eyebrow labels */
 
-  --lh-tight: 1.2;
-  --lh-body: 1.55;
+  --lh-tight: 1.05; /* display */
+  --lh-snug: 1.2;
+  --lh-body: 1.5;
+
+  --fw-display: 400; /* the reference sets display at 400, not 600 */
+  --fw-medium: 500;
+  --fw-semibold: 600;
 
   /* ── Space (4px base, 8px rhythm — D9) ────────────────────────────────── */
   --sp-1: 0.25rem;
@@ -71,28 +128,35 @@
   --sp-8: 2rem;
   --sp-10: 2.5rem;
   --sp-12: 3rem;
+  --sp-16: 4rem;
+  --sp-24: 6rem;
 
-  /* ── Radius (D8) ──────────────────────────────────────────────────────── */
-  --r-sm: 6px;
-  --r-control: 8px;
-  --r-card: 12px;
+  /* ── Radius (small — the reference's 3–6px, not 12+) ──────────────────── */
+  --r-sm: 3px;
+  --r-control: 5px;
+  --r-card: 6px;
+  --r-panel: 12px; /* dialogs */
+  --r-section: 18px; /* the feature band, matching the reference */
   --r-pill: 999px;
 
-  /* ── Elevation (near-flat — D5) ───────────────────────────────────────── */
-  --shadow-xs: 0 1px 2px rgba(30, 26, 21, 0.05);
-  --shadow-sm: 0 2px 8px rgba(30, 26, 21, 0.06);
-  --shadow-md: 0 8px 24px rgba(30, 26, 21, 0.1);
-  --shadow-lg: 0 16px 48px rgba(30, 26, 21, 0.16);
+  /* ── Elevation (soft and deep; floating layers only) ──────────────────── */
+  --shadow-xs: 0 1px 2px rgba(20, 26, 22, 0.05);
+  --shadow-sm: 0 8px 22px -12px rgba(20, 26, 22, 0.28);
+  --shadow-md: 0 24px 50px -20px rgba(20, 26, 22, 0.35);
+  --shadow-lg: 0 40px 80px -30px rgba(0, 0, 0, 0.5);
+  /* The inset highlight the reference's filled buttons carry. */
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.14);
 
   /* ── Layout ───────────────────────────────────────────────────────────── */
   --sidebar-w: 248px;
   --content-max: 1120px;
   --header-h: 64px;
 
-  /* ── Motion (D10) ─────────────────────────────────────────────────────── */
-  --t-fast: 120ms ease;
-  --t-base: 160ms ease;
-  --t-slow: 180ms ease;
+  /* ── Motion (D10 — the reference's easing) ────────────────────────────── */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --t-fast: 140ms var(--ease);
+  --t-base: 180ms var(--ease);
+  --t-slow: 260ms var(--ease);
 
   --z-drawer: 60;
   --z-modal: 80;
@@ -106,3 +170,10 @@
     --t-slow: 0ms;
   }
 }
+
+/* There is deliberately no `.on-night` scope that re-points `--ink` for dark bands.
+   It was written and never applied, and applying it would be wrong: the dark bands
+   (`.mk-band`, `.mk-foot`) contain light panels — the app mockups in the feature cards
+   are white and resolve `--ink` to its dark root value. Re-pointing it would turn their
+   text cream-on-white. Dark bands set their own colours explicitly, and text on them
+   uses `--cream` / `--ink-inverse` directly. */

@@ -10,8 +10,11 @@ import {
 } from '@/lib/catalog'
 import { describeModelFile, validateModelFile } from '@/lib/files'
 import { formatBytes } from '@/lib/format'
-import { createId } from '@/lib/id'
+import { isServiceError } from '../types/seller'
 import type { ProductImage, TryOnAnchor, TryOnAsset, TryOnAssetKind } from '../types/seller'
+import type { UploadKit } from '../hooks/useUploadKit'
+import { isAssetApiConfigured } from '../services/assetApi'
+import { AssetProcessor } from './AssetProcessor'
 import { ImageUploadField } from './ImageUploadField'
 
 /**
@@ -22,9 +25,13 @@ import { ImageUploadField } from './ImageUploadField'
  *
  *   • A product photo is NOT converted into a 3D model. Nothing in this system does that.
  *   • `image` means a cut-out placed as a 2D overlay — genuinely useful, and available today.
- *   • `glb` / `usdz` mean a real 3D asset authored elsewhere. A browser cannot upload those to file
- *     storage, so in demo mode the choice and the file metadata are recorded while the bytes are
- *     not stored. The UI says exactly that instead of showing a success state.
+ *   • `glb` / `usdz` mean a real 3D asset authored elsewhere, in a modelling tool. They are stored
+ *     as-is; nothing here generates one.
+ *
+ * What the field can promise about *storage* depends on the backend, which is why it takes
+ * `uploads`: given uploaders, a chosen file is put in `tryon-assets`; without them — demo mode — the
+ * choice and the file's details are recorded while the bytes stay in the browser, and the UI says
+ * exactly that rather than showing a success state that is not true.
  *
  * See arch.md §8.
  */
@@ -34,6 +41,8 @@ export interface TryOnAssetFieldProps {
   onChange: (next: TryOnAsset | null) => void
   /** Pre-selected placement when the product has no asset yet. */
   suggestedAnchor: TryOnAnchor
+  /** Where to put the bytes, or nothing when this backend has no object storage. */
+  uploads?: UploadKit
   error?: string
   disabled?: boolean
 }
@@ -55,22 +64,29 @@ export function TryOnAssetField({
   value,
   onChange,
   suggestedAnchor,
+  uploads,
   error,
   disabled,
 }: TryOnAssetFieldProps) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [modelError, setModelError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  //: The processing service is optional, so its panel is opened on request rather than stacked
+  //: under the ordinary picker, where two drop zones would look like the same choice twice.
+  const [showProcessor, setShowProcessor] = useState(false)
 
   const asset = value ?? emptyAsset('none', suggestedAnchor)
   const isModel = asset.kind === 'glb' || asset.kind === 'usdz'
   const needsUpload = asset.kind !== 'none' && !asset.url
+  const canStore = Boolean(uploads?.tryOnModel)
+  const processorAvailable = isAssetApiConfigured()
 
   function handleKindChange(kind: TryOnAssetKind) {
     setModelError(null)
     onChange(emptyAsset(kind, asset.anchor))
   }
 
-  function handleModelFile(files: FileList | null) {
+  async function handleModelFile(files: FileList | null) {
     const file = files?.[0]
     if (!file) return
 
@@ -79,24 +95,56 @@ export function TryOnAssetField({
     const invalid = validateModelFile(file)
     if (invalid) {
       setModelError(invalid)
+      if (fileRef.current) fileRef.current.value = ''
       return
     }
 
     const meta = describeModelFile(file)
+    const kind: TryOnAssetKind = meta.mimeType.includes('usdz') ? 'usdz' : 'glb'
 
-    onChange({
-      ...asset,
-      kind: meta.mimeType.includes('usdz') ? 'usdz' : 'glb',
-      // Recorded, not stored: a browser cannot put these bytes into file storage.
-      url: null,
-      fileName: meta.fileName,
-      mimeType: meta.mimeType,
-      sizeBytes: meta.sizeBytes,
-      origin: 'local-preview',
-      uploadedAt: new Date().toISOString(),
-    })
+    // Without storage there is nowhere to put a 45 MB mesh, so the choice and the file's details
+    // are recorded and the field says plainly that the bytes are not stored. With storage the file
+    // is uploaded first and only then recorded — a failure here must not look like a success.
+    if (!uploads?.tryOnModel) {
+      onChange({
+        ...asset,
+        kind,
+        url: null,
+        fileName: meta.fileName,
+        mimeType: meta.mimeType,
+        sizeBytes: meta.sizeBytes,
+        origin: 'local-preview',
+        uploadedAt: new Date().toISOString(),
+      })
 
-    if (fileRef.current) fileRef.current.value = ''
+      if (fileRef.current) fileRef.current.value = ''
+      return
+    }
+
+    setBusy(true)
+    try {
+      const stored = await uploads.tryOnModel(file, () => {})
+      onChange({
+        ...asset,
+        kind,
+        anchor: asset.anchor,
+        url: stored.url,
+        fileName: stored.fileName,
+        mimeType: stored.mimeType,
+        sizeBytes: stored.sizeBytes,
+        origin: stored.origin,
+        uploadedAt: stored.uploadedAt,
+      })
+    } catch (cause) {
+      setModelError(
+        isServiceError(cause)
+          ? cause.message
+          : 'That file could not be stored. Try again, or choose a different file.',
+      )
+    } finally {
+      setBusy(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
   }
 
   /** The 2D path reuses the image picker, since it is an ordinary image file. */
@@ -188,14 +236,50 @@ export function TryOnAssetField({
       </div>
 
       {asset.kind === 'image' ? (
-        <ImageUploadField
-          noun="try-on overlay image"
-          title="2D overlay image"
-          hint="A cut-out of the piece on a transparent or plain background. This is overlaid on the camera feed rather than fitted in 3D."
-          value={overlayValue}
-          onChange={handleOverlayChange}
-          disabled={disabled}
-        />
+        <>
+          <ImageUploadField
+            noun="try-on overlay image"
+            title="2D overlay image"
+            hint="A cut-out of the piece on a transparent or plain background. This is overlaid on the camera feed rather than fitted in 3D."
+            value={overlayValue}
+            onChange={handleOverlayChange}
+            upload={uploads?.tryOnImage}
+            disabled={disabled}
+          />
+
+          {processorAvailable ? (
+            <div className="ap-panel">
+              <div className="ap-panel__head">
+                <span>
+                  <strong>No cut-out yet?</strong> The asset service can remove the background from
+                  an ordinary photograph and hand back a transparent image.
+                </span>
+                <Button
+                  variant="link"
+                  size="sm"
+                  disabled={disabled}
+                  aria-expanded={showProcessor}
+                  onClick={() => setShowProcessor((open) => !open)}
+                >
+                  {showProcessor ? 'Hide' : 'Cut one out of a photo'}
+                </Button>
+              </div>
+
+              {showProcessor ? (
+                <AssetProcessor
+                  anchor={asset.anchor}
+                  disabled={disabled}
+                  onApproved={(produced) => {
+                    // The asset arrives already approved by the service; recording it here is the
+                    // only step left, and closing the panel shows the result in the field above.
+                    setShowProcessor(false)
+                    onChange(produced)
+                  }}
+                />
+              ) : null}
+            </div>
+          ) : null}
+        </>
       ) : null}
 
       {isModel ? (
@@ -234,7 +318,8 @@ export function TryOnAssetField({
                   variant="secondary"
                   size="sm"
                   icon="upload"
-                  disabled={disabled}
+                  disabled={disabled || busy}
+                  loading={busy}
                   onClick={() => fileRef.current?.click()}
                 >
                   {asset.fileName ? 'Replace file' : 'Choose 3D file'}
@@ -288,9 +373,20 @@ export function TryOnAssetField({
             <Icon name="alert" size={15} />
           </span>
           <span>
-            This product is marked as having a 3D try-on asset, but the file has not been stored.
-            Saving records the choice and the file details; the asset itself needs file storage, which
-            requires a connected backend. Until then the product page shows try-on as unavailable.
+            {canStore ? (
+              <>
+                This product is marked as having a 3D try-on asset, but no file has been chosen yet.
+                Saving records the choice and the file details; the product page shows try-on as
+                unavailable until the file itself is stored.
+              </>
+            ) : (
+              <>
+                This product is marked as having a 3D try-on asset, but the file has not been stored.
+                Saving records the choice and the file details; storing the asset itself needs file
+                storage, which requires a connected backend. Until then the product page shows try-on
+                as unavailable.
+              </>
+            )}
           </span>
         </div>
       ) : null}
@@ -301,8 +397,23 @@ export function TryOnAssetField({
             <Icon name="check" size={15} />
           </span>
           <span>
-            The overlay is held in this browser for the demo. A connected backend stores it in the{' '}
-            <span className="mono">tryon-assets</span> bucket.
+            {asset.origin === 'storage' ? (
+              <>
+                Stored in the <span className="mono">tryon-assets</span> bucket, separately from your
+                product photos.
+              </>
+            ) : asset.origin === 'asset-service' ? (
+              <>
+                Produced by the asset service and served from it, not from your product photo
+                storage. Saving stores the address the service returned, so this image is only as
+                available as that service is.
+              </>
+            ) : (
+              <>
+                The overlay is held in this browser for the demo. A connected backend stores it in the{' '}
+                <span className="mono">tryon-assets</span> bucket.
+              </>
+            )}
           </span>
         </div>
       ) : null}
@@ -324,6 +435,3 @@ export function createEmptyTryOnAsset(anchor: TryOnAnchor = 'unspecified'): TryO
 
 /** Re-exported so the form does not need to import from lib/catalog as well. */
 export { CATEGORY_DEFAULT_ANCHOR } from '@/lib/catalog'
-
-/** Unused id helper kept adjacent to the asset builders that use it. */
-export const tryOnAssetId = () => createId('tryon')

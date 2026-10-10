@@ -12,6 +12,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════════════════════╝
  */
 
+import devJhumkaOverlay from '@/assets/tryon/dev-jhumka-overlay.png'
 import { createId, ID_PREFIXES } from '@/lib/id'
 import { placeholderImageDataUrl } from '@/lib/placeholder'
 import type {
@@ -25,7 +26,7 @@ import type {
 
 const STORAGE_KEY = 'shringaar.demo.v1'
 /** Bumped when the seed changes shape. The loader discards a payload from a different version. */
-const SCHEMA_VERSION = 2
+const SCHEMA_VERSION = 6
 
 export interface DemoDatabase {
   version: number
@@ -72,21 +73,33 @@ function image(label: string, seed: number): ProductImage {
 /**
  * A seeded try-on asset.
  *
- * `url` is deliberately null for every seed. Nothing in this build can store a binary, so a seeded
- * asset is a *description* — "this product needs a .glb" — and the file name and MIME type are
- * cleared to match. Filling them in would dress an empty record up as something a customer could
- * try on, which is exactly the claim arch.md §8 forbids.
+ * `url` is null for every seed but one, and the rule behind that is worth stating because the
+ * exception looks like a violation of it: a seed may carry a URL **only when the file it points at is
+ * committed to this repository and is obviously not a real listing**. A `.glb` seed therefore stays a
+ * *description* — "this product needs a .glb" — because no model is committed and filling the URL in
+ * would dress an empty record up as something a customer could try on, which is exactly the claim
+ * arch.md §8 forbids.
+ *
+ * The single exception is `prd_demo_008`, whose declared kind is already `image`. A 2D overlay needs
+ * nothing but a PNG, and the committed one is a drawn jhumka captioned DEV PLACEHOLDER inside a dashed
+ * bounding box — it cannot be mistaken for a photograph of a piece. That one seed is what makes the
+ * try-on route reachable in demo mode at all; without it every customer page falls to the
+ * "not available for this piece yet" branch and the engine can only be exercised from `/tryon/lab`.
  */
-function tryOn(kind: TryOnAsset['kind'], anchor: TryOnAsset['anchor']): TryOnAsset {
+function tryOn(
+  kind: TryOnAsset['kind'],
+  anchor: TryOnAsset['anchor'],
+  overlay?: { url: string; fileName: string },
+): TryOnAsset {
   return {
     kind,
-    url: null,
-    fileName: null,
-    mimeType: null,
+    url: overlay?.url ?? null,
+    fileName: overlay?.fileName ?? null,
+    mimeType: overlay ? 'image/png' : null,
     sizeBytes: null,
     anchor,
     origin: 'demo-seed',
-    uploadedAt: null,
+    uploadedAt: overlay ? daysAgo(0, 2) : null,
   }
 }
 
@@ -101,6 +114,8 @@ interface SeedSpec {
   daysOld: number
   tryOnKind: TryOnAsset['kind']
   anchor: TryOnAsset['anchor']
+  /** Set on the one seed whose asset is a committed file — see `tryOn()`. */
+  overlay?: { url: string; fileName: string }
 }
 
 const SEED_PRODUCTS: SeedSpec[] = [
@@ -182,6 +197,86 @@ const SEED_PRODUCTS: SeedSpec[] = [
     tryOnKind: 'none',
     anchor: 'neck',
   },
+  {
+    id: 'prd_demo_007',
+    name: 'Kundan Nose Ring with Chain',
+    slug: 'kundan-nose-ring-with-chain',
+    description:
+      'A kundan-set nose ring on a fine chain that hooks over the ear, so it stays put without a piercing. The chain length is adjustable by about an inch.',
+    price: 6400,
+    category: 'noserings',
+    status: 'published',
+    daysOld: 19,
+    tryOnKind: 'image',
+    anchor: 'nose',
+  },
+  {
+    id: 'prd_demo_008',
+    name: 'Pearl Drop Jhumka',
+    slug: 'pearl-drop-jhumka',
+    description:
+      'A bell-shaped jhumka in gold-tone brass, finished with a single freshwater pearl at the base. Weighted lightly so it does not pull at the lobe over a long day.',
+    price: 2450,
+    category: 'earrings',
+    status: 'published',
+    daysOld: 14,
+    tryOnKind: 'image',
+    anchor: 'ear',
+    /* The one seeded asset with bytes behind it. See `tryOn()` for why this one and no other. */
+    overlay: { url: devJhumkaOverlay, fileName: 'dev-jhumka-overlay.png' },
+  },
+  {
+    id: 'prd_demo_009',
+    name: 'Temple Mala, Long',
+    slug: 'temple-mala-long',
+    description:
+      'A long temple-work mala with coin motifs, worn doubled or single. Antique gold finish; the coins are stamped rather than cast, so the relief is shallow.',
+    price: 18600,
+    category: 'necklaces',
+    status: 'published',
+    daysOld: 11,
+    tryOnKind: 'none',
+    anchor: 'neck',
+  },
+  {
+    id: 'prd_demo_010',
+    name: 'Bridal Set, Seven Pieces',
+    slug: 'bridal-set-seven-pieces',
+    description:
+      'Necklace, choker, earrings, maang tikka, two bangles and a nose ring, made to match. Ordered as a set only — pieces are not sold separately.',
+    price: 78500,
+    category: 'sets',
+    status: 'published',
+    daysOld: 7,
+    tryOnKind: 'none',
+    anchor: 'unspecified',
+  },
+  {
+    id: 'prd_demo_011',
+    name: 'Filigree Kada, Pair',
+    slug: 'filigree-kada-pair',
+    description:
+      'A pair of wide kadas with open filigree work, hinged with a screw pin. Inner diameter 2.5 inches; the hinge means they go on without going over the knuckle.',
+    price: 16400,
+    category: 'bangles',
+    status: 'published',
+    daysOld: 4,
+    tryOnKind: 'none',
+    anchor: 'wrist',
+  },
+  {
+    id: 'prd_demo_012',
+    name: 'Silver Anklet, Ghungroo',
+    slug: 'silver-anklet-ghungroo',
+    description:
+      'A slim silver anklet strung with small ghungroo bells that sound as you walk. Sold singly — order two if you want a pair.',
+    price: 2980,
+    category: 'anklets',
+    status: 'published',
+    daysOld: 2,
+    tryOnKind: 'none',
+    anchor: 'ankle',
+  },
 ]
 
 function seedProducts(): Product[] {
@@ -197,7 +292,7 @@ function seedProducts(): Product[] {
     category: spec.category,
     status: spec.status,
     image: image(spec.name, index),
-    tryOnAsset: tryOn(spec.tryOnKind, spec.anchor),
+    tryOnAsset: tryOn(spec.tryOnKind, spec.anchor, spec.overlay),
     externalProductUrl: index === 1 ? 'https://example-shop.test/products/kundan-choker' : null,
     whatsappNumber: null,
     createdAt: daysAgo(spec.daysOld),
@@ -280,11 +375,15 @@ export function createSeedDatabase(): DemoDatabase {
       slug: 'meena-jewels',
       description:
         'Hand-finished kundan, polki and meenakari pieces made in Jaipur. Small batches, made to order, shipped across India.',
+      city: 'Jaipur',
       logoUrl: null,
       contactEmail: 'hello@example.test',
       contactPhone: '+91 98200 00000',
       whatsappNumber: '+91 98200 00000',
       currency: 'INR',
+      // The seed is a shop that has been trading for months, so its setup is finished — which is
+      // what makes the demo dashboard reachable without walking the first-run flow first.
+      onboardingCompleted: true,
       createdAt: daysAgo(180),
       updatedAt: daysAgo(27, 4),
     },

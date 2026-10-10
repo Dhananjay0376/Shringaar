@@ -30,3 +30,7 @@ yarn-error.log*
 # Browser-automation scratch — snapshots, console dumps and screenshots written by the Playwright
 # MCP server. Useful while verifying a screen, never part of the app or of a review.
 .playwright-mcp/
+# The same category, written to the repository root during the try-on verification runs.
+placement-stationary.png
+swing-placement-check.png
+tryon-live-3rd-product.png

@@ -70,7 +70,7 @@ export function SellerDashboard() {
     <>
       <PageHeader
         banner={
-          isDemo && !demoBannerDismissed ? <DemoModeBanner onDismiss={dismissDemoBanner} /> : null
+          isDemo && !demoBannerDismissed ? <DemoModeBanner seeded onDismiss={dismissDemoBanner} /> : null
         }
         title="Overview"
         subtitle={

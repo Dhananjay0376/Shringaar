@@ -1,0 +1,481 @@
+/* ============================================================================
+   Dashboard surfaces — Home and Collection
+   =========================================================================
+   The two screens the restructured seller flow is built around. They sit inside
+   the existing shell (sidebar, header), so this file only describes what is new
+   on the page itself. Loaded after app.css.
+
+   Prefixes: `home-` and `col-`. Everything else here — buttons, fields, the page
+   header — comes from app.css and base.css and is not restated.
+   ========================================================================= */
+
+/* ── Home ───────────────────────────────────────────────────────────────── */
+
+.home__head {
+  margin-bottom: var(--sp-8);
+}
+
+.home__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--sp-3);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.home__title {
+  font-size: var(--fs-display);
+  font-weight: var(--fw-display);
+  letter-spacing: var(--track-display);
+  line-height: var(--lh-tight);
+  color: var(--ink);
+}
+
+.home__welcome {
+  margin-top: var(--sp-2);
+  max-width: 52ch;
+  font-size: var(--fs-body);
+  color: var(--ink-2);
+}
+
+.home__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.home__slug {
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-raised);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+/* Three counts, each with one line of plain English under the number. The sentence is the part a
+   seller actually reads; the number is the part they scan. */
+.home__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-8);
+}
+
+.home__stat {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--surface);
+}
+
+.home__stat-v {
+  font-size: var(--fs-stat);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.home__stat-l {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--ink);
+}
+
+.home__stat-n {
+  margin-top: 4px;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+/* ── Home: quick actions ────────────────────────────────────────────────── */
+
+.home__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-8);
+}
+
+/* The whole card is the target — a seller tapping this on a phone should not have to find the word
+   "Add". The chevron is the only affordance and it is decoration. */
+.home__action {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  color: var(--ink);
+  transition:
+    border-color var(--t-base),
+    box-shadow var(--t-base),
+    transform var(--t-base);
+}
+
+.home__action:hover {
+  border-color: color-mix(in srgb, var(--brand-500) 40%, transparent);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.home__action--primary {
+  border-color: color-mix(in srgb, var(--brand-500) 30%, transparent);
+  background: var(--brand-50);
+}
+
+.home__action-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-card);
+  background: var(--surface);
+  color: var(--brand-500);
+  box-shadow: var(--shadow-xs);
+}
+
+.home__action-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.home__action-title {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.home__action-note {
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.home__action-go {
+  flex: none;
+  margin-top: 10px;
+  color: var(--ink-3);
+}
+
+/* ── Home: empty and trailing states ────────────────────────────────────── */
+
+.home__empty {
+  padding: var(--sp-8);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-card);
+  background: var(--surface-raised);
+  text-align: center;
+}
+
+.home__empty h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  color: var(--ink);
+}
+
+.home__empty p {
+  max-width: 44ch;
+  margin: var(--sp-2) auto var(--sp-5);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+.home__empty .btn {
+  display: inline-flex;
+}
+
+.home__more {
+  margin-bottom: var(--sp-6);
+}
+
+.home__more a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.home__footnote {
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+/* ── Collection ─────────────────────────────────────────────────────────── */
+
+.col__filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-8);
+}
+
+.col__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    border-color var(--t-base),
+    background-color var(--t-base),
+    color var(--t-base);
+}
+
+.col__chip:hover {
+  border-color: var(--brand-500);
+  color: var(--ink);
+}
+
+.col__chip--on {
+  border-color: var(--brand-500);
+  background: var(--brand-500);
+  color: #fff;
+}
+
+.col__chip-n {
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+.col__group + .col__group {
+  margin-top: var(--sp-10);
+}
+
+.col__group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.col__group-head h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.col__group-n {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.col__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: var(--sp-4);
+}
+
+/* ── Collection: one piece ──────────────────────────────────────────────── */
+
+.col-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  transition:
+    border-color var(--t-base),
+    box-shadow var(--t-base);
+}
+
+.col-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.col-card__media {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--surface-sunken);
+}
+
+.col-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Keeps the object centred as `cover` crops different aspect ratios. */
+  object-position: center;
+}
+
+.col-card__none {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--ink-3);
+}
+
+.col-card__draft {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  background: rgba(20, 26, 22, 0.72);
+  color: #fff;
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
+.col-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--sp-4);
+}
+
+.col-card__name {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+/* Clamped rather than truncated with an ellipsis: a description cut mid-word reads as a bug, three
+   lines that end cleanly reads as a summary. */
+.col-card__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 6px;
+  font-size: var(--fs-xs);
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+.col-card__desc--none {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.col-card__foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: auto;
+  padding-top: var(--sp-4);
+}
+
+.col-card__price {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-medium);
+  color: var(--ink);
+}
+
+.col-card__cat {
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.col-card__actions {
+  display: flex;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--line);
+  background: var(--surface-raised);
+}
+
+.col-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--ink-2);
+}
+
+.col-card__link:hover {
+  color: var(--brand-600);
+}
+
+/* ── Collection: empty ──────────────────────────────────────────────────── */
+
+.col__empty {
+  padding: var(--sp-10) var(--sp-6);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-card);
+  background: var(--surface-raised);
+  text-align: center;
+}
+
+.col__empty-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--sp-4);
+  border-radius: var(--r-card);
+  background: var(--brand-50);
+  color: var(--brand-500);
+}
+
+.col__empty h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  color: var(--ink);
+}
+
+.col__empty p {
+  max-width: 46ch;
+  margin: var(--sp-2) auto var(--sp-5);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+.col__empty .btn {
+  display: inline-flex;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home__action:hover {
+    transform: none;
+  }
+}

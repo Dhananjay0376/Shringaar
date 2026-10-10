@@ -131,9 +131,17 @@ export function countProducts(products: Product[]): ProductCounts {
 /**
  * Products need a slug for a readable URL, but the public URL is keyed on the product id, so a
  * duplicate slug is a cosmetic problem rather than a routing one. We still de-duplicate within the
- * store to keep future database uniqueness constraints satisfiable.
+ * store to keep the schema's `unique (store_id, slug)` satisfiable.
+ *
+ * Takes anything carrying a `slug` rather than a `Product`, because the Supabase adapter knows the
+ * taken slugs before it has finished building products — asking it to construct throwaway `Product`
+ * objects to call this would be a type lie for no benefit.
  */
-export function uniqueProductSlug(base: string, existing: Product[], excludeId?: string): string {
+export function uniqueProductSlug(
+  base: string,
+  existing: readonly { slug: string; id?: string }[],
+  excludeId?: string,
+): string {
   const taken = new Set(
     existing.filter((product) => product.id !== excludeId).map((product) => product.slug),
   )

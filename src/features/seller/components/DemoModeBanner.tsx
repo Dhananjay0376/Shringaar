@@ -15,9 +15,15 @@ import { Icon } from '@/components/ui/Icon'
 
 export interface DemoModeBannerProps {
   onDismiss: () => void
+  /**
+   * True on screens showing the seeded demonstration catalogue (Overview), false where the seller
+   * is looking at their own uploads (Home). Without this the banner tells a seller who has just
+   * photographed their own stock that their products are "sample data", which is simply wrong.
+   */
+  seeded?: boolean
 }
 
-export function DemoModeBanner({ onDismiss }: DemoModeBannerProps) {
+export function DemoModeBanner({ onDismiss, seeded = false }: DemoModeBannerProps) {
   return (
     <div className="banner banner--demo" role="note">
       <span className="banner__icon">
@@ -27,10 +33,14 @@ export function DemoModeBanner({ onDismiss }: DemoModeBannerProps) {
       <div className="banner__body">
         <div className="banner__title">Demo mode — no backend is connected</div>
         <p>
-          The products below are sample data, and the analytics on this dashboard are generated
-          numbers, not real traffic. Anything you create, edit or delete is saved in{' '}
-          <strong>this browser only</strong>; nothing is written to a database, and no files are
-          uploaded to storage.
+          {seeded
+            ? 'The products below are sample data, and the analytics on this dashboard are generated numbers, not real traffic. '
+            : 'The products and counts below are read from the demo store in this browser, not from a live shop. '}
+          {/* Neither branch says "your uploads": Home serves both the seller who just created a
+              store and the one who signed in to the seeded catalogue, and it cannot tell them
+              apart from here. */}
+          Anything you create, edit or delete is saved in <strong>this browser only</strong>; nothing
+          is written to a database, and no files are uploaded to storage.
         </p>
       </div>
 

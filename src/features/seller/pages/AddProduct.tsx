@@ -7,6 +7,7 @@ import { paths } from '@/routes/paths'
 import { ProductForm } from '../components/ProductForm'
 import { useSeller } from '../context/SellerContext'
 import { useAction } from '../hooks/useProducts'
+import { useUploadKit } from '../hooks/useUploadKit'
 import type { ProductInput } from '../types/seller'
 
 /**
@@ -22,6 +23,10 @@ export function AddProduct() {
   const navigate = useNavigate()
   const toast = useToast()
   const { state, run } = useAction()
+
+  // No `productId`: the product does not exist until this form is submitted, so its images are
+  // scoped by the auth user id alone until a later edit moves them under a folder of their own.
+  const uploads = useUploadKit()
 
   const [serverError, setServerError] = useState<string | null>(null)
 
@@ -80,6 +85,7 @@ export function AddProduct() {
         mode="create"
         store={store}
         submitting={state.busy}
+        uploads={uploads}
         serverError={serverError}
         onSubmit={handleSubmit}
         onCancel={() => navigate(paths.seller.products)}

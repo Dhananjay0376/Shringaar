@@ -14,7 +14,8 @@ import { pluralise } from '@/lib/format'
 import { useSeller } from '../context/SellerContext'
 import { useDebounced } from '../hooks/useDebounced'
 import { useAction, useStorefront } from '../hooks/useProducts'
-import type { ProductImage, StoreInput } from '../types/seller'
+import { useUploadKit } from '../hooks/useUploadKit'
+import type { AssetOrigin, ProductImage, StoreInput } from '../types/seller'
 import { validateStore, type FieldErrors, type StoreField } from '../utils/validation'
 import { storeUrl } from '../utils/product'
 import { ImageUploadField } from '../components/ImageUploadField'
@@ -38,6 +39,7 @@ interface StoreFormState {
   name: string
   slug: string
   description: string
+  city: string
   contactEmail: string
   contactPhone: string
   whatsappNumber: string
@@ -45,10 +47,24 @@ interface StoreFormState {
   logo: ProductImage | null
 }
 
+/**
+ * Where an already-saved logo's bytes actually are.
+ *
+ * Derived from the URL rather than from a flag, because the URL is the evidence: a logo that went
+ * through `uploadStoreLogo` came back from the `store-logos` bucket, and anything else on this field
+ * is demo artwork seeded into the record. Getting this wrong is not cosmetic — `ImageUploadField`
+ * prints a different sentence for each, and telling a seller their logo is safely stored when it is
+ * a placeholder would be a lie about the one asset that identifies their shop.
+ */
+function logoOrigin(url: string): AssetOrigin {
+  return /\/storage\/v1\/object\/public\//.test(url) ? 'storage' : 'demo-seed'
+}
+
 function toFormState(store: {
   name: string
   slug: string
   description: string
+  city: string | null
   contactEmail: string | null
   contactPhone: string | null
   whatsappNumber: string | null
@@ -59,6 +75,7 @@ function toFormState(store: {
     name: store.name,
     slug: store.slug,
     description: store.description,
+    city: store.city ?? '',
     contactEmail: store.contactEmail ?? '',
     contactPhone: store.contactPhone ?? '',
     whatsappNumber: store.whatsappNumber ?? '',
@@ -72,7 +89,7 @@ function toFormState(store: {
           sizeBytes: null,
           width: null,
           height: null,
-          origin: 'demo-seed',
+          origin: logoOrigin(store.logoUrl),
           uploadedAt: new Date().toISOString(),
         }
       : null,
@@ -83,6 +100,10 @@ export function SellerStore() {
   const { store, saveStore, service, isDemo } = useSeller()
   const toast = useToast()
   const { state: saving, run } = useAction()
+
+  // A store logo is not a product's, so it is not filed under a product id — it goes to its own
+  // bucket, where the cleanup that runs when a product is deleted cannot reach the brand.
+  const uploads = useUploadKit()
 
   const [form, setForm] = useState<StoreFormState>(() => (store ? toFormState(store) : blankStore()))
   const [errors, setErrors] = useState<FieldErrors<StoreField>>({})
@@ -144,6 +165,7 @@ export function SellerStore() {
     form.name !== store.name ||
     form.slug !== store.slug ||
     form.description !== store.description ||
+    form.city !== (store.city ?? '') ||
     form.contactEmail !== (store.contactEmail ?? '') ||
     form.contactPhone !== (store.contactPhone ?? '') ||
     form.whatsappNumber !== (store.whatsappNumber ?? '') ||
@@ -171,6 +193,7 @@ export function SellerStore() {
       slug: form.slug,
       description: form.description,
       logoUrl: form.logo?.url ?? null,
+      city: form.city.trim() || null,
       contactEmail: form.contactEmail.trim() || null,
       contactPhone: form.contactPhone.trim() || null,
       whatsappNumber: form.whatsappNumber.trim() || null,
@@ -326,9 +349,10 @@ export function SellerStore() {
                       <ImageUploadField
                         noun="store logo"
                         title="Store logo"
-                        hint="PNG, JPEG, WebP or AVIF, up to 5 MB. Square images work best."
+                        hint="PNG, JPEG, WebP or AVIF, up to 2 MB. Square images work best — the mark is shown small, in the storefront header and the sidebar."
                         value={form.logo}
                         onChange={(next) => update('logo', next)}
+                        upload={uploads.storeLogo}
                       />
                     </div>
 
@@ -340,6 +364,19 @@ export function SellerStore() {
                           value={form.currency}
                           options={CURRENCY_OPTIONS}
                           onChange={(event) => update('currency', event.target.value as CurrencyKey)}
+                        />
+                      )}
+                    </Field>
+
+                    <Field label="City" optional hint="Where your shop trades from.">
+                      {({ id, describedBy }) => (
+                        <Input
+                          id={id}
+                          aria-describedby={describedBy}
+                          value={form.city}
+                          maxLength={60}
+                          placeholder="e.g. Jaipur"
+                          onChange={(event) => update('city', event.target.value)}
                         />
                       )}
                     </Field>
@@ -571,6 +608,7 @@ function blankStore(): StoreFormState {
     name: '',
     slug: '',
     description: '',
+    city: '',
     contactEmail: '',
     contactPhone: '',
     whatsappNumber: '',

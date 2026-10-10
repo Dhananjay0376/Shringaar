@@ -3,6 +3,7 @@ import { Icon } from '@/components/ui/Icon'
 import { LoadingAnnouncement } from '@/components/ui/Skeleton'
 import {
   categoryLabel,
+  hasTryOnExperience,
   hasUsableTryOnAsset,
   productPublicUrl,
   resolveContactWhatsApp,
@@ -136,6 +137,13 @@ function ProductDetail({ view, isDemo }: { view: ProductView; isDemo: boolean })
   const { store, product } = view
 
   const tryOnReady = hasUsableTryOnAsset(product)
+  /**
+   * A usable asset is not the same thing as a runnable try-on. The asset is the seller's half; this is
+   * whether the engine has anything to run for this category. Both must hold before a button appears,
+   * because a button that leads to "not available for this category" is a worse answer than never
+   * offering it — which is the same reasoning the old two-branch version applied to the try-on host.
+   */
+  const tryOnSupported = hasTryOnExperience(product.category)
   const tryOnHref = tryOnUrl(config.tryOnBaseUrl, product.id)
   const contactNumber = resolveContactWhatsApp(product, store)
   const whatsapp = contactNumber ? whatsAppLink(contactNumber) : null
@@ -198,7 +206,8 @@ function ProductDetail({ view, isDemo }: { view: ProductView; isDemo: boolean })
           ) : null}
 
           {/* ── Try-on ──────────────────────────────────────────────────── */}
-          {tryOnReady && tryOnHref ? (
+          {tryOnReady && tryOnSupported && tryOnHref ? (
+            /* An external try-on host is configured, and it wins — that seam is unchanged. */
             <div className="tryon-panel">
               <p className="tryon-panel__title">
                 <Icon name="sparkle" size={16} />
@@ -218,18 +227,29 @@ function ProductDetail({ view, isDemo }: { view: ProductView; isDemo: boolean })
                 Launch virtual try-on
               </a>
             </div>
-          ) : tryOnReady ? (
-            // The asset is usable but no try-on client is deployed. Say which half is missing.
-            <div className="callout callout--info">
-              <span className="callout__icon">
-                <Icon name="info" size={15} />
-              </span>
-              <span>
-                This product has a try-on asset ready, but no try-on experience is deployed yet. The
-                seller has done their part — the AR client is the missing piece.
-              </span>
+          ) : tryOnReady && tryOnSupported ? (
+            /* NEW: no external host, so the engine in this app serves it. In-app, so a `Link` rather
+               than an anchor — and the scope line is here because the honest expectation is part of
+               the offer, not something to discover after granting camera access. */
+            <div className="tryon-panel">
+              <p className="tryon-panel__title">
+                <Icon name="sparkle" size={16} />
+                Try it on
+              </p>
+              <p className="tryon-panel__text">
+                See how this piece looks on you, using your camera. Nothing is uploaded — everything
+                runs in your browser. It is a placement preview from a flat image, not a fitment guide.
+              </p>
+              <Link className="btn btn--primary btn--block" to={paths.public.tryOn(product.id)}>
+                <Icon name="sparkle" size={16} />
+                Launch virtual try-on
+              </Link>
             </div>
           ) : (
+            /* Covers two cases with one accurate sentence: no usable asset at all, and a usable asset
+               in a category the engine cannot place yet. The branch that used to sit between them —
+               "the AR client is the missing piece" — is deliberately gone: try-on ships in this app
+               now, so that sentence would send a seller looking for a host they no longer need. */
             <div className="callout callout--info">
               <span className="callout__icon">
                 <Icon name="info" size={15} />
@@ -291,7 +311,10 @@ function ProductDetail({ view, isDemo }: { view: ProductView; isDemo: boolean })
             <div className="fact">
               <dt className="fact__label">Try-on</dt>
               <dd className="fact__value">
-                {tryOnReady ? 'Asset available' : 'Not available'}
+                {/* Matches the button above exactly. "Asset available" was a seller's word on a
+                    customer's page, and it described the seller's half rather than what the shopper
+                    can do — which is the distinction the try-on branch above now draws. */}
+                {tryOnReady && tryOnSupported ? 'Available' : 'Not available'}
               </dd>
             </div>
             {whatsapp ? (

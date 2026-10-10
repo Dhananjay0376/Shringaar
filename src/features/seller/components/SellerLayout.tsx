@@ -6,6 +6,7 @@ import { Icon } from '@/components/ui/Icon'
 import { paths, SELLER_SECTIONS } from '@/routes/paths'
 import { useDocumentTitle } from '@/lib/useDocumentTitle'
 import { useSeller } from '../context/SellerContext'
+import { landingPathFor } from '../utils/landing'
 import { SellerHeader } from './SellerHeader'
 import { SellerSidebar } from './SellerSidebar'
 
@@ -25,6 +26,8 @@ function sectionForPath(pathname: string): string {
   switch (pathname) {
     case paths.seller.dashboard:
       return SELLER_SECTIONS.dashboard
+    case paths.seller.collection:
+      return SELLER_SECTIONS.collection
     case paths.seller.products:
       return SELLER_SECTIONS.products
     case paths.seller.addProduct:
@@ -114,8 +117,23 @@ export function SellerLayout() {
     )
   }
 
-  if (!seller || !store) {
-    return <Navigate to={paths.seller.signIn} replace state={{ from: location.pathname }} />
+  if (!seller || !store || !store.onboardingCompleted) {
+    /**
+     * A session without a finished store is not "signed out". Sending them to sign-in would ask for
+     * credentials they already have, and showing the dashboard would show a shop that is not
+     * published yet. `landingPathFor` names the step they are actually on — sign-in with no session,
+     * the store form with no store, the end of the guided run while the setup is unfinished — and
+     * only the first of those can return them here, so only that one carries `from`.
+     */
+    const landing = landingPathFor(seller, store)
+
+    return (
+      <Navigate
+        to={landing}
+        replace
+        state={landing === paths.marketing.signIn ? { from: location.pathname } : undefined}
+      />
+    )
   }
 
   return (

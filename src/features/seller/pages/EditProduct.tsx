@@ -12,6 +12,7 @@ import { QrDialog } from '../components/QrDialog'
 import { RowMenu } from '../components/RowMenu'
 import { useSeller } from '../context/SellerContext'
 import { useAction, useProduct } from '../hooks/useProducts'
+import { useUploadKit } from '../hooks/useUploadKit'
 import type { ProductInput } from '../types/seller'
 import { hasUsableTryOnAsset, productUrl } from '../utils/product'
 
@@ -33,6 +34,10 @@ export function EditProduct() {
 
   const product = useProduct(productId)
   const { state, run } = useAction()
+
+  // This product exists, so its new images are filed under it — which is what lets deleting the
+  // product find and remove them. `useUploadKit` handles the case where the id is not in the URL.
+  const uploads = useUploadKit({ productId })
 
   const [serverError, setServerError] = useState<string | null>(null)
   const [qrOpen, setQrOpen] = useState(false)
@@ -181,6 +186,7 @@ export function EditProduct() {
         initial={current}
         store={store}
         submitting={state.busy}
+        uploads={uploads}
         serverError={serverError}
         onSubmit={handleSubmit}
         onCancel={() => navigate(paths.seller.products)}

@@ -69,7 +69,7 @@
   display: grid;
   place-items: center;
   border-radius: var(--r-control);
-  background: linear-gradient(150deg, var(--gold-100), var(--gold-400));
+  background: linear-gradient(150deg, var(--brand-100), var(--brand-400));
   color: #3d2f16;
   font-family: var(--font-display);
   font-size: 17px;
@@ -190,8 +190,8 @@
 }
 
 .nav__item--active {
-  background: var(--gold-50);
-  color: var(--gold-600);
+  background: var(--brand-50);
+  color: var(--brand-600);
   font-weight: 600;
 }
 
@@ -204,7 +204,7 @@
   width: 3px;
   height: 18px;
   border-radius: var(--r-pill);
-  background: var(--gold-500);
+  background: var(--brand-500);
 }
 
 .nav__icon {
@@ -224,8 +224,8 @@
 }
 
 .nav__item--active .nav__badge {
-  background: var(--gold-100);
-  color: var(--gold-600);
+  background: var(--brand-100);
+  color: var(--brand-600);
 }
 
 .sidebar__footer {
@@ -335,7 +335,7 @@
 }
 
 .profile-trigger:hover {
-  border-color: var(--gold-400);
+  border-color: var(--brand-400);
 }
 
 .avatar {
@@ -345,8 +345,8 @@
   display: grid;
   place-items: center;
   border-radius: var(--r-pill);
-  background: var(--gold-100);
-  color: var(--gold-600);
+  background: var(--brand-100);
+  color: var(--brand-600);
   font-size: var(--fs-xs);
   font-weight: 600;
 }
@@ -483,15 +483,15 @@
 }
 
 .btn--primary {
-  background: var(--gold-500);
-  border-color: var(--gold-500);
+  background: var(--brand-500);
+  border-color: var(--brand-500);
   color: #fff;
   box-shadow: var(--shadow-xs);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--gold-600);
-  border-color: var(--gold-600);
+  background: var(--brand-600);
+  border-color: var(--brand-600);
 }
 
 .btn--secondary {
@@ -501,7 +501,7 @@
 }
 
 .btn--secondary:hover:not(:disabled) {
-  border-color: var(--gold-400);
+  border-color: var(--brand-400);
   background: var(--surface-hover);
 }
 
@@ -531,7 +531,7 @@
   padding: 0;
   background: none;
   border: 0;
-  color: var(--gold-600);
+  color: var(--brand-600);
   font-weight: 500;
 }
 
@@ -701,9 +701,9 @@
 }
 
 .badge--gold {
-  background: var(--gold-50);
-  border-color: var(--gold-200);
-  color: var(--gold-600);
+  background: var(--brand-50);
+  border-color: var(--brand-200);
+  color: var(--brand-600);
 }
 
 .badge--success {
@@ -822,15 +822,15 @@
 .input:hover,
 .textarea:hover,
 .select:hover {
-  border-color: var(--gold-400);
+  border-color: var(--brand-400);
 }
 
 .input:focus,
 .textarea:focus,
 .select:focus {
   outline: none;
-  border-color: var(--gold-500);
-  box-shadow: 0 0 0 3px var(--gold-100);
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px var(--brand-100);
 }
 
 .input[aria-invalid='true'],
@@ -890,7 +890,7 @@
 }
 
 .upload:hover {
-  border-color: var(--gold-400);
+  border-color: var(--brand-400);
 }
 
 .upload--error {
@@ -1003,17 +1003,17 @@
 }
 
 .radio-card:hover {
-  border-color: var(--gold-400);
+  border-color: var(--brand-400);
 }
 
 .radio-card--active {
-  border-color: var(--gold-500);
-  background: var(--gold-50);
+  border-color: var(--brand-500);
+  background: var(--brand-50);
 }
 
 .radio-card input {
   margin: 3px 0 0;
-  accent-color: var(--gold-500);
+  accent-color: var(--brand-500);
 }
 
 .radio-card__title {
@@ -1147,11 +1147,11 @@
 }
 
 .toast--info {
-  border-left: 3px solid var(--gold-500);
+  border-left: 3px solid var(--brand-500);
 }
 
 .toast--info .toast__icon {
-  color: var(--gold-600);
+  color: var(--brand-600);
 }
 
 /* ── 10. Skeleton, empty, banner ─────────────────────────────────────────── */
@@ -1228,8 +1228,8 @@
   display: grid;
   place-items: center;
   border-radius: var(--r-pill);
-  background: var(--gold-50);
-  color: var(--gold-600);
+  background: var(--brand-50);
+  color: var(--brand-600);
   margin-bottom: var(--sp-1);
 }
 
@@ -1336,8 +1336,8 @@
   display: grid;
   place-items: center;
   border-radius: var(--r-sm);
-  background: var(--gold-50);
-  color: var(--gold-600);
+  background: var(--brand-50);
+  color: var(--brand-600);
   flex-shrink: 0;
 }
 
@@ -1710,8 +1710,8 @@
 }
 
 .activity__icon--gold {
-  background: var(--gold-50);
-  color: var(--gold-600);
+  background: var(--brand-50);
+  color: var(--brand-600);
 }
 
 .activity__icon--green {
@@ -1766,12 +1766,12 @@
 }
 
 .chart__area {
-  fill: var(--gold-50);
+  fill: var(--brand-50);
 }
 
 .chart__line {
   fill: none;
-  stroke: var(--gold-500);
+  stroke: var(--brand-500);
   stroke-width: 2;
   stroke-linejoin: round;
   stroke-linecap: round;
@@ -1779,7 +1779,7 @@
 
 .chart__dot {
   fill: var(--surface);
-  stroke: var(--gold-500);
+  stroke: var(--brand-500);
   stroke-width: 2;
 }
 
@@ -1806,7 +1806,7 @@
   width: 10px;
   height: 3px;
   border-radius: var(--r-pill);
-  background: var(--gold-500);
+  background: var(--brand-500);
 }
 
 .bar-list {
@@ -1853,7 +1853,7 @@
   display: block;
   height: 100%;
   border-radius: var(--r-pill);
-  background: linear-gradient(90deg, var(--gold-200), var(--gold-500));
+  background: linear-gradient(90deg, var(--brand-200), var(--brand-500));
   transition: width var(--t-base);
 }
 
@@ -1998,7 +1998,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--gold-600);
+  color: var(--brand-600);
 }
 
 .preview__viewport {
@@ -2135,7 +2135,7 @@
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 600;
-  background: linear-gradient(150deg, var(--gold-100), var(--gold-400));
+  background: linear-gradient(150deg, var(--brand-100), var(--brand-400));
   color: #3d2f16;
 }
 
@@ -2186,7 +2186,7 @@
 }
 
 .storefront__card:hover {
-  border-color: var(--gold-400);
+  border-color: var(--brand-400);
   box-shadow: var(--shadow-sm);
   text-decoration: none;
 }
@@ -2270,7 +2270,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--gold-600);
+  color: var(--brand-600);
 }
 
 .product-detail__name {
@@ -2334,9 +2334,9 @@
   flex-direction: column;
   gap: var(--sp-3);
   padding: var(--sp-4);
-  border: 1px solid var(--gold-200);
+  border: 1px solid var(--brand-200);
   border-radius: var(--r-card);
-  background: var(--gold-50);
+  background: var(--brand-50);
 }
 
 .tryon-panel__title {
@@ -2345,7 +2345,7 @@
   gap: var(--sp-2);
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--gold-600);
+  color: var(--brand-600);
 }
 
 .tryon-panel__text {

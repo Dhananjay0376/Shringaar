@@ -15,6 +15,7 @@ export const CATEGORIES = {
   rings: 'Rings',
   necklaces: 'Necklaces',
   earrings: 'Earrings',
+  noserings: 'Nose rings',
   bracelets: 'Bracelets',
   bangles: 'Bangles',
   pendants: 'Pendants',
@@ -26,6 +27,21 @@ export const CATEGORIES = {
 export type CategoryKey = keyof typeof CATEGORIES
 
 export const CATEGORY_OPTIONS = (Object.keys(CATEGORIES) as CategoryKey[]).map((value) => ({
+  value,
+  label: CATEGORIES[value],
+}))
+
+/**
+ * The short list the guided first-run uploader offers.
+ *
+ * A seller photographing a tray of stock thinks in four buckets, not ten. This is a *subset* of
+ * `CATEGORIES`, not a second vocabulary: every key here is a real category, so a product added
+ * through the guided flow is indistinguishable from one added through the full product form. The
+ * remaining categories stay available on that form for the pieces this short list would flatten.
+ */
+export const GUIDED_CATEGORY_KEYS = ['earrings', 'noserings', 'necklaces', 'other'] as const
+
+export const GUIDED_CATEGORY_OPTIONS = GUIDED_CATEGORY_KEYS.map((value) => ({
   value,
   label: CATEGORIES[value],
 }))
@@ -91,7 +107,7 @@ export const TRYON_ASSET_KIND_LABELS: Record<TryOnAssetKind, string> = {
 }
 
 /** Where the AR client should attempt to place the piece. A hint, not a guarantee. */
-export const TRYON_ANCHORS = ['unspecified', 'finger', 'wrist', 'neck', 'ear', 'ankle'] as const
+export const TRYON_ANCHORS = ['unspecified', 'finger', 'wrist', 'neck', 'ear', 'nose', 'ankle'] as const
 export type TryOnAnchor = (typeof TRYON_ANCHORS)[number]
 
 export const TRYON_ANCHOR_LABELS: Record<TryOnAnchor, string> = {
@@ -100,6 +116,7 @@ export const TRYON_ANCHOR_LABELS: Record<TryOnAnchor, string> = {
   wrist: 'Wrist',
   neck: 'Neck',
   ear: 'Ear',
+  nose: 'Nose',
   ankle: 'Ankle',
 }
 
@@ -108,12 +125,32 @@ export const CATEGORY_DEFAULT_ANCHOR: Record<CategoryKey, TryOnAnchor> = {
   rings: 'finger',
   necklaces: 'neck',
   earrings: 'ear',
+  noserings: 'nose',
   bracelets: 'wrist',
   bangles: 'wrist',
   pendants: 'neck',
   anklets: 'ankle',
   sets: 'unspecified',
   other: 'unspecified',
+}
+
+/**
+ * The product categories a try-on experience actually exists for.
+ *
+ * Defined here, in the shared vocabulary, because two features ask this question and must not answer
+ * it differently: the storefront decides whether to offer a "Try it on" button at all, and the AR
+ * engine decides whether it has an anchor strategy. If they disagreed, a customer would be promised a
+ * try-on that then refused to run — the worst of both, and the failure `renderers/select.ts` already
+ * guards against internally by pinning its list to the solver registry.
+ *
+ * Only `earrings` is here. Every other category has an anchor constant above so the seller's form can
+ * pre-fill something sensible, but a pre-filled anchor is not an implementation, and listing a
+ * category here is a claim that a shopper can actually see the piece on themselves.
+ */
+export const TRYON_READY_CATEGORIES: readonly CategoryKey[] = ['earrings']
+
+export function hasTryOnExperience(category: CategoryKey): boolean {
+  return TRYON_READY_CATEGORIES.includes(category)
 }
 
 /**

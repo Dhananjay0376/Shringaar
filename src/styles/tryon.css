@@ -1,0 +1,445 @@
+/* ── Try-on (AR) ────────────────────────────────────────────────────────────
+   The `try-` prefix, per design.md's rule that every surface namespaces its own
+   classes. Tokens only — no literal colours, no magic spacing — so the surface
+   stays consistent with the rest of the app and a token change reaches it.
+
+   The one deliberate exception is the stage curtain: it sits over live video, so
+   its backdrop is a dark scrim rather than a surface token. A light scrim over a
+   bright camera image is unreadable, and `--night` is the token for "over media".
+
+   Imported from main.tsx, after dashboard.css. */
+
+.try-page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-6) var(--sp-16);
+}
+
+/* ── Stage ───────────────────────────────────────────────────────────────── */
+
+.try-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.try-stage__box {
+  position: relative;
+  /* Only the shape shown before a camera is running. `TryOnStage` writes an inline
+     aspect-ratio from `videoWidth`/`videoHeight` once metadata arrives, because a box
+     that disagrees with the camera makes `cover` crop — and the crop eats the sides of
+     the frame, which is where the ears are. */
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--r-card);
+  background: var(--night);
+  box-shadow: var(--shadow-sm);
+}
+
+.try-stage__video,
+.try-stage__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* `cover` plus a canvas sized to the same box plus a box shaped like the camera's own
+   frame: that is the whole geometry contract, and it is what makes "what the customer
+   sees is what the canvas measures" true. */
+.try-stage__video {
+  object-fit: cover;
+  background: var(--night);
+}
+
+/* Mirror preview.
+   The video is flipped here AND the landmarks are flipped in the coordinate maths, from
+   the same `mirror` flag on `TryOnStage`. It has to be both: landmarks are normalised in
+   the camera image's space, so with the video unflipped a flipped dot lands on the
+   opposite side of the face. Flipping only one of the two does not give a mirror — it
+   gives a correctly-mirrored overlay on top of an unmirrored face, which a face's own
+   symmetry makes easy to miss. Objects, not the face, are what make it visible: with the
+   video flipped, a mug on the customer's left appears on the left of the screen. */
+.try-stage__video--mirrored {
+  transform: scaleX(-1);
+}
+
+.try-stage__canvas {
+  pointer-events: none;
+}
+
+.try-stage__badge {
+  position: absolute;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  z-index: 1;
+}
+
+.try-stage__curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: var(--sp-8);
+  text-align: center;
+  background: rgba(18, 29, 23, 0.86);
+  backdrop-filter: blur(3px);
+}
+
+.try-stage__curtain--error {
+  background: rgba(18, 29, 23, 0.94);
+}
+
+.try-stage__curtain-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--track-h2);
+  color: var(--ink-inverse);
+}
+
+.try-stage__curtain-body {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink-inverse-muted);
+}
+
+.try-stage__curtain-body--warn {
+  color: var(--amber-50);
+}
+
+.try-stage__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3) var(--sp-5);
+}
+
+/* ── Status chip ─────────────────────────────────────────────────────────── */
+
+.try-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  color: var(--ink-inverse);
+  background: rgba(18, 29, 23, 0.7);
+  border: 1px solid var(--line-on-dark-strong);
+}
+
+/* Tracking states carry meaning, so they carry colour: green for a lock, amber
+   for a hold, red for a loss. `acquiring` stays neutral — it is not a problem,
+   it is the normal first second. */
+.try-chip--tracking {
+  border-color: var(--brand-accent);
+}
+
+.try-chip--holding {
+  border-color: var(--amber-700);
+}
+
+.try-chip--lost {
+  border-color: var(--red-700);
+}
+
+/* ── Controls ────────────────────────────────────────────────────────────── */
+
+.try-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.try-toggle input {
+  accent-color: var(--brand-500);
+  cursor: pointer;
+}
+
+.try-select {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.try-select select {
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-control);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+/* A button that reads as a link, because stopping the camera is not a primary
+   action and should not compete with the one on the curtain. */
+.try-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--brand-600);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.try-link-button:disabled {
+  color: var(--ink-3);
+  cursor: default;
+  text-decoration: none;
+}
+
+.try-link-button:focus-visible,
+.try-select select:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* ── Lab layout ──────────────────────────────────────────────────────────── */
+
+.try-lab {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+.try-lab__panels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* Below this the two columns would each be too narrow to show a face and a
+   readout at the same time, so they stack instead. */
+@media (max-width: 900px) {
+  .try-lab {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── Readouts ────────────────────────────────────────────────────────────── */
+
+.try-readout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+}
+
+.try-readout > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--line);
+}
+
+.try-readout > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.try-readout dt {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  letter-spacing: var(--track-label);
+}
+
+/* Monospace and tabular so a number changing four times a second does not make
+   the row it sits in jump sideways. */
+.try-readout dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.try-note {
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+  color: var(--ink-3);
+}
+
+/* An error the customer can act on, so it is coloured rather than greyed like the notes above. */
+.try-note--warn {
+  color: var(--amber-700);
+}
+
+/* ── Fit controls ────────────────────────────────────────────────────────── */
+
+.try-fit {
+  margin-top: var(--sp-4);
+}
+
+.try-fit__summary {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.try-fit__summary:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* Marks a calibration that is no longer neutral. Only visible while the panel is shut — which is
+   exactly when it is needed, because a forgotten adjustment is a plausible explanation for an
+   earring that sits oddly, and nothing else on screen would say so. */
+.try-fit__flag {
+  margin-left: var(--sp-2);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-pill);
+  background: var(--brand-500);
+  color: var(--ink-inverse);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+}
+
+.try-fit__grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+
+/* Label, slider, value on one row; the hint tucked under the slider so it lines up with the control
+   it describes rather than with the label. */
+.try-fit__field {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) 3.5rem;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-3);
+}
+
+.try-fit__label {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.try-fit__range {
+  width: 100%;
+  accent-color: var(--brand-500);
+  cursor: pointer;
+}
+
+.try-fit__range:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* Tabular monospace for the same reason the readouts are: a number that changes as the slider moves
+   must not shove its own row sideways. */
+.try-fit__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--ink);
+}
+
+.try-fit__hint {
+  grid-column: 2 / -1;
+  margin: 0;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+  color: var(--ink-3);
+}
+
+/* Below this the three columns squeeze the slider to the point where a single step is unreachable by
+   dragging, which makes the control worse than useless. */
+@media (max-width: 480px) {
+  .try-fit__field {
+    grid-template-columns: minmax(0, 1fr) 3.5rem;
+  }
+
+  .try-fit__label {
+    grid-column: 1 / -1;
+  }
+
+  .try-fit__hint {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── Asset picker (lab only) ─────────────────────────────────────────────── */
+
+.try-asset__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+  margin-top: var(--sp-4);
+}
+
+.try-asset__pick {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+/* Left as the browser's own file control, deliberately. A styled wrapper around a file input is
+   several elements of markup standing between the customer and the one native behaviour that has to
+   work — and this control is for the developer's own machine, not a customer surface. */
+.try-asset__pick input[type='file'] {
+  font: inherit;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+/* ── The customer page ───────────────────────────────────────────────────── */
+
+/* One column, and narrower than the lab. The lab is a wall of panels read side by side; this is a
+   single thing to look at, and a measure wider than this makes the camera feed a letterbox with a
+   caption somewhere off to the right. */
+.try-customer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+/* The limitations list. Real list semantics rather than a paragraph of run-on sentences: these are
+   separate claims, and a customer scanning for "does it work with hair over my ear" should be able to
+   find that line without reading the other four. */
+.try-truths {
+  margin: 0;
+  padding-left: 1.1em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.try-truths li::marker {
+  color: var(--brand-500);
+}

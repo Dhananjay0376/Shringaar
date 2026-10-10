@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# Local processing storage — uploaded originals and generated assets are runtime data,
+# never committed. The directory is recreated on demand.
+data/

@@ -32,14 +32,46 @@ interface NavItem {
   end?: boolean
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { to: paths.seller.dashboard, label: 'Overview', icon: 'grid', end: true },
-  { to: paths.seller.products, label: 'Products', icon: 'box', end: true },
+/**
+ * The two things a seller does most: see where they stand, and look at what they have made.
+ * Everything else is administration and lives below.
+ */
+const PRIMARY_NAV: NavItem[] = [
+  { to: paths.seller.dashboard, label: 'Home', icon: 'grid', end: true },
+  { to: paths.seller.collection, label: 'Collection', icon: 'gridView', end: true },
+]
+
+const MANAGE_NAV: NavItem[] = [
   { to: paths.seller.addProduct, label: 'Add Product', icon: 'plusCircle' },
+  { to: paths.seller.products, label: 'Products', icon: 'box', end: true },
   { to: paths.seller.store, label: 'My Store', icon: 'store' },
   { to: paths.seller.analytics, label: 'Analytics', icon: 'chart' },
   { to: paths.seller.settings, label: 'Settings', icon: 'settings' },
 ]
+
+/** One nav row. Extracted because the sidebar now renders two groups from the same markup. */
+function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate: () => void }) {
+  return (
+    <NavLink
+      to={item.to}
+      end={item.end}
+      onClick={onNavigate}
+      className={({ isActive }) =>
+        ['nav__item', isActive ? 'nav__item--active' : ''].filter(Boolean).join(' ')
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <span className="nav__icon">
+            <Icon name={item.icon} size={17} />
+          </span>
+          <span>{item.label}</span>
+          {isActive ? <span className="sr-only">(current section)</span> : null}
+        </>
+      )}
+    </NavLink>
+  )
+}
 
 export function SellerSidebar({
   store,
@@ -75,28 +107,16 @@ export function SellerSidebar({
       </div>
 
       <nav className="sidebar__nav" aria-label="Seller dashboard sections">
+        <div className="nav">
+          {PRIMARY_NAV.map((item) => (
+            <SidebarLink key={item.to} item={item} onNavigate={onNavigate} />
+          ))}
+        </div>
+
         <p className="nav__label-heading">Manage</p>
         <div className="nav">
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={onNavigate}
-              className={({ isActive }) =>
-                ['nav__item', isActive ? 'nav__item--active' : ''].filter(Boolean).join(' ')
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <span className="nav__icon">
-                    <Icon name={item.icon} size={17} />
-                  </span>
-                  <span>{item.label}</span>
-                  {isActive ? <span className="sr-only">(current section)</span> : null}
-                </>
-              )}
-            </NavLink>
+          {MANAGE_NAV.map((item) => (
+            <SidebarLink key={item.to} item={item} onNavigate={onNavigate} />
           ))}
         </div>
       </nav>

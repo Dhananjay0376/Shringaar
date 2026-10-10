@@ -32,7 +32,10 @@ h3,
 h4 {
   margin: 0;
   color: var(--ink);
-  font-weight: 600;
+  /* Display type is set at 400 with tight tracking — see tokens.css. Weight and
+     tracking, not a second typeface, are what separate a heading from body text. */
+  font-weight: var(--fw-display);
+  letter-spacing: var(--track-display);
   line-height: var(--lh-tight);
 }
 
@@ -48,7 +51,7 @@ ol {
 }
 
 a {
-  color: var(--gold-600);
+  color: var(--brand-600);
   text-decoration: none;
 }
 
@@ -143,8 +146,8 @@ textarea {
 .page-title {
   font-family: var(--font-display);
   font-size: var(--fs-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: var(--fw-display);
+  letter-spacing: var(--track-display);
 }
 
 .page-subtitle {
@@ -163,7 +166,8 @@ textarea {
 
 .section-title {
   font-size: var(--fs-h2);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.02em;
 }
 
 .text-muted {

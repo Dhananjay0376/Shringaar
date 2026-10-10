@@ -17,6 +17,14 @@ export interface AppConfig {
   publicSiteUrl: string
   /** Base URL of the customer AR try-on client, or null when it is not deployed yet. */
   tryOnBaseUrl: string | null
+  /**
+   * Base URL of the asset-processing service, or null when it is not configured.
+   *
+   * Null is the normal case for a deployment that has no such service, and every caller must
+   * handle it: the dashboard then offers no "process this photo" action rather than a button that
+   * fails. See `features/seller/services/assetApi.ts`.
+   */
+  assetApiUrl: string | null
   /** Present only when both Supabase variables are set. */
   supabase: SupabaseConfig | null
 }
@@ -52,6 +60,7 @@ function resolveSupabase(): SupabaseConfig | null {
 export const config: AppConfig = {
   publicSiteUrl: resolvePublicSiteUrl(),
   tryOnBaseUrl: readEnv(import.meta.env.VITE_TRYON_BASE_URL),
+  assetApiUrl: readEnv(import.meta.env.VITE_ASSET_API_URL)?.replace(/\/+$/, '') ?? null,
   supabase: resolveSupabase(),
 }
 

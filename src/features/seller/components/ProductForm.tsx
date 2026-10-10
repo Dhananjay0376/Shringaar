@@ -12,6 +12,7 @@ import {
 } from '@/lib/catalog'
 import type { CategoryKey, CurrencyKey } from '@/lib/catalog'
 import type { Product, ProductInput, Store } from '../types/seller'
+import type { UploadKit } from '../hooks/useUploadKit'
 import { ProductField, validateProduct, type FieldErrors } from '../utils/validation'
 import { ImageUploadField } from './ImageUploadField'
 import { TryOnAssetField, createEmptyTryOnAsset } from './TryOnAssetField'
@@ -21,6 +22,10 @@ import { TryOnAssetField, createEmptyTryOnAsset } from './TryOnAssetField'
  *
  * Keeping a single component means the two screens cannot drift: a rule added here applies whether a
  * seller is creating or editing. See arch.md §3.
+ *
+ * The form itself never touches the service. It is handed `uploads` — built by the screen from
+ * `useUploadKit` — and passes the same kit to both pickers, so there is one answer to "can this
+ * backend store bytes?" rather than one per field.
  */
 
 export interface ProductFormProps {
@@ -28,6 +33,8 @@ export interface ProductFormProps {
   initial?: Product | null
   store: Store
   submitting: boolean
+  /** Where the pickers put their bytes. Empty when this backend has no object storage. */
+  uploads?: UploadKit
   serverError?: string | null
   onSubmit: (input: ProductInput) => void
   onCancel: () => void
@@ -67,6 +74,7 @@ export function ProductForm({
   initial,
   store,
   submitting,
+  uploads,
   serverError,
   onSubmit,
   onCancel,
@@ -131,6 +139,22 @@ export function ProductForm({
   const isPublishing = form.status === 'published'
   const assetDeclaredButUnstored =
     Boolean(form.tryOnAsset && form.tryOnAsset.kind !== 'none' && !form.tryOnAsset.url)
+
+  /**
+   * The one line of small print next to the save button.
+   *
+   * `assetDeclaredButUnstored` means two different things depending on the backend, and saying the
+   * wrong one would be a lie in one of the two cases: without storage the asset genuinely cannot be
+   * stored, and the seller should know that before they save; with storage the only thing missing is
+   * that they have not chosen the file yet, which is theirs to fix.
+   */
+  const footerNote = assetDeclaredButUnstored
+    ? uploads?.tryOnModel
+      ? 'The try-on file still needs choosing.'
+      : 'Try-on asset will be recorded but not uploaded.'
+    : isPublishing
+      ? 'Visible on your storefront after saving.'
+      : 'Saved privately as a draft.'
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -322,6 +346,7 @@ export function ProductForm({
               hint={`JPEG, PNG, WebP or AVIF, up to 5 MB. Square images look best in the catalogue — ${CATEGORIES[form.category]} are usually shot straight on.`}
               value={form.image}
               onChange={(next) => update('image', next)}
+              upload={uploads?.image}
               error={errors.image}
             />
 
@@ -343,6 +368,7 @@ export function ProductForm({
               value={form.tryOnAsset}
               onChange={(next) => update('tryOnAsset', next)}
               suggestedAnchor={CATEGORY_DEFAULT_ANCHOR[form.category]}
+              uploads={uploads}
               error={errors.tryOnAsset}
             />
           </CardBody>
@@ -424,13 +450,7 @@ export function ProductForm({
 
             <span className="spacer" />
 
-            <span className="text-xs text-muted">
-              {assetDeclaredButUnstored
-                ? 'Try-on asset will be recorded but not uploaded.'
-                : isPublishing
-                  ? 'Visible on your storefront after saving.'
-                  : 'Saved privately as a draft.'}
-            </span>
+            <span className="text-xs text-muted">{footerNote}</span>
           </CardFooter>
         </Card>
       </div>

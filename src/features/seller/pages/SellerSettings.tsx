@@ -105,11 +105,16 @@ export function SellerSettings() {
       icon: 'sparkle',
       label: 'AR try-on engine',
       description:
-        'Rendering the try-on experience from a product’s try-on asset, for customers on your storefront.',
+        'Rendering the try-on experience from a product’s try-on asset, for customers on your storefront. Earrings only today — other categories show “not available yet” on the product page.',
+      /* Three states, not two, and the middle one is the change. Before the engine shipped in this app,
+         no host meant no try-on, and the copy said so. Now the absence of a host is the *normal*
+         configuration: the viewer runs on every product page. Leaving the old sentence here would be
+         the same defect as an overclaim, pointing the other way — it would send a seller hunting for a
+         host setting they do not need, and understate a feature they already have. */
       status: config.tryOnBaseUrl
         ? `Pointed at ${config.tryOnBaseUrl}`
-        : 'Not connected — no try-on host is configured, so try-on is unavailable to customers',
-      connected: Boolean(config.tryOnBaseUrl),
+        : 'Built in — running in the try-on viewer on each product page',
+      connected: true,
     },
     {
       icon: 'whatsapp',
