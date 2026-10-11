@@ -16,6 +16,7 @@ import type { UploadKit } from '../hooks/useUploadKit'
 import { ProductField, validateProduct, type FieldErrors } from '../utils/validation'
 import { ImageUploadField } from './ImageUploadField'
 import { TryOnAssetField, createEmptyTryOnAsset } from './TryOnAssetField'
+import { useTinyFishDescription } from '@/lib/useTinyFishDescription'
 
 /**
  * Add and edit product — one form, two routes.
@@ -82,6 +83,7 @@ export function ProductForm({
   const [form, setForm] = useState<FormState>(() => initialState(initial, store))
   const [errors, setErrors] = useState<FieldErrors<ProductField>>({})
   const [attempted, setAttempted] = useState(false)
+  const { generate: generateDescription, loading: generatingDesc, error: descGenError } = useTinyFishDescription()
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -205,15 +207,36 @@ export function ProductForm({
                   hint="Materials, dimensions, care, and anything a buyer would ask before ordering."
                 >
                   {({ id, describedBy, invalid }) => (
-                    <Textarea
-                      id={id}
-                      aria-describedby={describedBy}
-                      invalid={invalid}
-                      value={form.description}
-                      maxLength={2000}
-                      placeholder="Hand-set kundan stones on a gold-plated base. 16-inch choker with adjustable dori."
-                      onChange={(event) => update('description', event.target.value)}
-                    />
+                    <>
+                      <Textarea
+                        id={id}
+                        aria-describedby={describedBy}
+                        invalid={invalid}
+                        value={form.description}
+                        maxLength={2000}
+                        placeholder="Hand-set kundan stones on a gold-plated base. 16-inch choker with adjustable dori."
+                        onChange={(event) => update('description', event.target.value)}
+                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={!form.name.trim() || generatingDesc}
+                          loading={generatingDesc}
+                          onClick={async () => {
+                            const generated = await generateDescription(form.name, CATEGORIES[form.category])
+                            if (generated) update('description', generated)
+                          }}
+                        >
+                          ✨ Generate with AI
+                        </Button>
+                        {descGenError ? (
+                          <span style={{ fontSize: '12px', color: 'var(--color-error, #e53e3e)' }}>
+                            {descGenError}
+                          </span>
+                        ) : null}
+                      </div>
+                    </>
                   )}
                 </Field>
               </div>
