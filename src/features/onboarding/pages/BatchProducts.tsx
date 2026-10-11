@@ -16,7 +16,6 @@ import { isServiceError } from '@/features/seller/types/seller'
 import { MarketingShell, OnboardingHeader } from '@/features/marketing/components/MarketingShell'
 import { SessionLoading, useOnboardingSession } from '../components/SessionGate'
 import { paths } from '@/routes/paths'
-import { useTinyFishDescription } from '@/lib/useTinyFishDescription'
 
 /**
  * Add your jewellery — the guided bulk uploader.
@@ -47,7 +46,6 @@ export function BatchProducts() {
   const { store, loading, landing, service } = useOnboardingSession()
   const navigate = useNavigate()
   const { state: action, run, reset } = useAction()
-  const { generate: generateDescription, loading: generatingDesc, error: descGenError } = useTinyFishDescription()
 
   const uploadInput = useRef<HTMLInputElement>(null)
   const cameraInput = useRef<HTMLInputElement>(null)
@@ -322,36 +320,15 @@ export function BatchProducts() {
                   hint="Skip it if you are in a hurry — we will use the name until you add one."
                 >
                   {({ id, describedBy }) => (
-                    <>
-                      <Textarea
-                        id={id}
-                        value={description}
-                        rows={3}
-                        maxLength={LIMITS.productDescription.max}
-                        placeholder="e.g. Traditional gold-tone jhumka with pearl detailing."
-                        aria-describedby={describedBy}
-                        onChange={(event) => setDescription(event.target.value)}
-                      />
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={!name.trim() || generatingDesc}
-                          loading={generatingDesc}
-                          onClick={async () => {
-                            const generated = await generateDescription(name, CATEGORIES[category])
-                            if (generated) setDescription(generated)
-                          }}
-                        >
-                          ✨ Generate with AI
-                        </Button>
-                        {descGenError ? (
-                          <span style={{ fontSize: '12px', color: 'var(--color-error, #e53e3e)' }}>
-                            {descGenError}
-                          </span>
-                        ) : null}
-                      </div>
-                    </>
+                    <Textarea
+                      id={id}
+                      value={description}
+                      rows={3}
+                      maxLength={LIMITS.productDescription.max}
+                      placeholder="e.g. Traditional gold-tone jhumka with pearl detailing."
+                      aria-describedby={describedBy}
+                      onChange={(event) => setDescription(event.target.value)}
+                    />
                   )}
                 </Field>
 
