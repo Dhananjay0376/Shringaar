@@ -14,13 +14,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^2.28.0",
     "@mediapipe/tasks-vision": "1.1.0",
     "@supabase/supabase-js": "^2.117.3",
     "@vitejs/plugin-react": "^4.3.4",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
+    "react-router-dom": "^6.30.6",
     "three": "^0.186.1",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
